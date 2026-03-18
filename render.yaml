@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: boos-garden
+    runtime: node
+    plan: free
+    buildCommand: npm install && npx prisma generate && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: DATABASE_URL
+        value: postgresql://rs3hub_user:GWkwJIz1pCksbzLpk9xQ5mw87Y236v0l@dpg-d61852ggjchc73evbah0-a/rs3hub
+      - key: NEXTAUTH_SECRET
+        generateValue: true
+      - key: NEXTAUTH_URL
+        value: https://boos-garden.onrender.com
+      - key: NODE_ENV
+        value: production
