@@ -1,0 +1,28 @@
+{
+  "name": "Boo's Garden",
+  "short_name": "Boo's Garden",
+  "description": "Tend your daily garden, one day at a time",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fefdf8",
+  "theme_color": "#7a8f64",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-180.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

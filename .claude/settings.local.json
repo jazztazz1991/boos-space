@@ -182,7 +182,9 @@
       "Read(//c/Users/jazz_/Desktop/Web Development Projects/**)",
       "Bash(npx create-next-app@latest boos-space-temp --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --use-npm --no-turbopack)",
       "Bash(npm init:*)",
-      "Bash(2)"
+      "Bash(2)",
+      "Bash(npm list:*)",
+      "Bash(node scripts/generate-icons.mjs)"
     ],
     "additionalDirectories": [
       "c:\\Users\\jazz_\\Desktop\\Web Development Projects\\portfolioProjects\\FarmCoop\\src\\app\\api\\businesses\\[id]",
