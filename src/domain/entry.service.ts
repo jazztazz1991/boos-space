@@ -76,3 +76,19 @@ export async function upsertEntry(
 
   return toDTO(entry);
 }
+
+export async function deleteEntry(
+  userId: string,
+  date: string
+): Promise<boolean> {
+  const dateObj = new Date(date + "T00:00:00.000Z");
+
+  const deleted = await prisma.entry.deleteMany({
+    where: {
+      date: dateObj,
+      userId,
+    },
+  });
+
+  return deleted.count > 0;
+}

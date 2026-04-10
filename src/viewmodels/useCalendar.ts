@@ -132,6 +132,24 @@ export function useCalendar() {
     closeModal();
   };
 
+  const deleteEntry = async (dateKey: string) => {
+    const res = await fetch("/api/entries", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ date: dateKey }),
+    });
+
+    if (res.ok) {
+      setEntries((prev) => {
+        const next = new Map(prev);
+        next.delete(dateKey);
+        return next;
+      });
+    }
+
+    closeModal();
+  };
+
   const clearLeafShower = useCallback(() => {
     setShowLeafShower(false);
   }, []);
@@ -159,6 +177,7 @@ export function useCalendar() {
     openDay,
     closeModal,
     saveEntry,
+    deleteEntry,
     clearLeafShower,
     clearPetalShower,
   };

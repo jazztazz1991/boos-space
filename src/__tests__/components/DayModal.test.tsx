@@ -7,6 +7,7 @@ describe("DayModal", () => {
     isOpen: true,
     dateKey: "2026-03-15",
     onSave: jest.fn(),
+    onDelete: jest.fn(),
     onClose: jest.fn(),
   };
 
@@ -198,5 +199,33 @@ describe("DayModal", () => {
   it("has accessible dialog role", () => {
     render(<DayModal {...defaultProps} />);
     expect(screen.getByRole("dialog")).toBeInTheDocument();
+  });
+
+  it("does not show Remove Entry button for new entries", () => {
+    render(<DayModal {...defaultProps} />);
+    expect(screen.queryByText("Remove Entry")).not.toBeInTheDocument();
+  });
+
+  it("shows Remove Entry button when editing an existing entry", () => {
+    render(
+      <DayModal
+        {...defaultProps}
+        entry={{ id: "1", date: "2026-03-15", dayType: "GOOD", notes: null }}
+      />
+    );
+    expect(screen.getByText("Remove Entry")).toBeInTheDocument();
+  });
+
+  it("calls onDelete with dateKey when Remove Entry is clicked", async () => {
+    const user = userEvent.setup();
+    render(
+      <DayModal
+        {...defaultProps}
+        entry={{ id: "1", date: "2026-03-15", dayType: "GOOD", notes: null }}
+      />
+    );
+
+    await user.click(screen.getByText("Remove Entry"));
+    expect(defaultProps.onDelete).toHaveBeenCalledWith("2026-03-15");
   });
 });

@@ -31,6 +31,7 @@ export function Calendar() {
     openDay,
     closeModal,
     saveEntry,
+    deleteEntry,
     clearLeafShower,
     clearPetalShower,
   } = useCalendar();
@@ -240,6 +241,7 @@ export function Calendar() {
         dateKey={selectedDate}
         entry={selectedEntry}
         onSave={saveEntry}
+        onDelete={deleteEntry}
         onClose={closeModal}
       />
     </div>

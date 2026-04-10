@@ -9,6 +9,10 @@ export const CreateEntrySchema = z.object({
   notes: z.string().max(1000).optional(),
 });
 
+export const DeleteEntrySchema = z.object({
+  date: z.iso.date(),
+});
+
 export const GetEntriesSchema = z.object({
   month: z.string().regex(/^\d{4}-\d{2}$/, "Must be YYYY-MM format"),
 });

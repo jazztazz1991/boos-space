@@ -9,6 +9,7 @@ interface DayModalProps {
   dateKey: string | null;
   entry?: EntryDTO;
   onSave: (dateKey: string, dayType: DayType, notes: string) => void;
+  onDelete: (dateKey: string) => void;
   onClose: () => void;
 }
 
@@ -18,7 +19,7 @@ const NOTES_PLACEHOLDERS: Record<DayType, string> = {
   SELF_CARE: "What are you doing to take care of yourself today?",
 };
 
-export function DayModal({ isOpen, dateKey, entry, onSave, onClose }: DayModalProps) {
+export function DayModal({ isOpen, dateKey, entry, onSave, onDelete, onClose }: DayModalProps) {
   const [dayType, setDayType] = useState<DayType>("GOOD");
   const [notes, setNotes] = useState("");
   const modalRef = useRef<HTMLDivElement>(null);
@@ -65,6 +66,10 @@ export function DayModal({ isOpen, dateKey, entry, onSave, onClose }: DayModalPr
 
   const handleSave = () => {
     onSave(dateKey, dayType, notes);
+  };
+
+  const handleDelete = () => {
+    onDelete(dateKey);
   };
 
   const handleBackdropClick = (e: React.MouseEvent) => {
@@ -243,6 +248,23 @@ export function DayModal({ isOpen, dateKey, entry, onSave, onClose }: DayModalPr
             Save Entry
           </button>
         </div>
+
+        {/* Remove entry — only shown for existing entries */}
+        {entry && (
+          <div className="mt-4 text-center">
+            <button
+              type="button"
+              onClick={handleDelete}
+              className="
+                text-xs font-medium text-rose-400 hover:text-rose-500
+                px-3 py-1.5 rounded-lg hover:bg-rose-50
+                transition-colors
+              "
+            >
+              Remove Entry
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

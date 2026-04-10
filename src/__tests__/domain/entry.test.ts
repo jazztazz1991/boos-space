@@ -1,4 +1,4 @@
-import { CreateEntrySchema, GetEntriesSchema } from "@/domain/entry";
+import { CreateEntrySchema, DeleteEntrySchema, GetEntriesSchema } from "@/domain/entry";
 
 describe("CreateEntrySchema", () => {
   it("accepts valid input with all fields", () => {
@@ -98,6 +98,23 @@ describe("CreateEntrySchema", () => {
       notes: "a".repeat(1000),
     });
     expect(result.success).toBe(true);
+  });
+});
+
+describe("DeleteEntrySchema", () => {
+  it("accepts valid ISO date", () => {
+    const result = DeleteEntrySchema.safeParse({ date: "2026-03-15" });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects missing date", () => {
+    const result = DeleteEntrySchema.safeParse({});
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects invalid date format", () => {
+    const result = DeleteEntrySchema.safeParse({ date: "not-a-date" });
+    expect(result.success).toBe(false);
   });
 });
 

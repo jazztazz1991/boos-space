@@ -84,4 +84,28 @@ test.describe("Entry Flow", () => {
     await page.getByPlaceholder(/How are you feeling/).fill("Hello");
     await expect(page.getByText("5/1000")).toBeVisible();
   });
+
+  test("does not show Remove Entry for unlogged days", async ({ page }) => {
+    await page.getByRole("button", { name: /Not logged - 7$/ }).click();
+    await expect(page.getByText("Garden Log")).toBeVisible();
+    await expect(page.getByText("Remove Entry")).not.toBeVisible();
+  });
+
+  test("can remove a previously logged entry", async ({ page }) => {
+    // First log a day
+    await page.getByRole("button", { name: /Not logged - 8$/ }).click();
+    await page.getByRole("button", { name: "Save Entry" }).click();
+    await expect(page.getByRole("dialog")).not.toBeVisible();
+
+    // Re-open the same day — should now show Remove Entry
+    await page.getByRole("button", { name: /Good day - 8$/ }).click();
+    await expect(page.getByText("Remove Entry")).toBeVisible();
+
+    // Click Remove Entry
+    await page.getByText("Remove Entry").click();
+    await expect(page.getByRole("dialog")).not.toBeVisible();
+
+    // Day should be back to unlogged
+    await expect(page.getByRole("button", { name: /Not logged - 8$/ })).toBeVisible();
+  });
 });
