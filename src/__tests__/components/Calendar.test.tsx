@@ -13,7 +13,9 @@ jest.mock("@/viewmodels/useCalendar", () => ({
     isModalOpen: false,
     isLoading: false,
     celebratingDate: null,
+    celebrationType: "good",
     showLeafShower: false,
+    showPetalShower: false,
     goToPreviousMonth: jest.fn(),
     goToNextMonth: jest.fn(),
     goToToday: jest.fn(),
@@ -21,6 +23,7 @@ jest.mock("@/viewmodels/useCalendar", () => ({
     closeModal: jest.fn(),
     saveEntry: jest.fn(),
     clearLeafShower: jest.fn(),
+    clearPetalShower: jest.fn(),
   }),
 }));
 
@@ -68,18 +71,20 @@ describe("Calendar", () => {
     expect(screen.getByText("Go to Today")).toBeInTheDocument();
   });
 
-  it("renders the legend", () => {
+  it("renders the legend with all day types", () => {
     render(<Calendar />);
     expect(screen.getByText("Good day")).toBeInTheDocument();
     expect(screen.getByText("Tough day")).toBeInTheDocument();
+    expect(screen.getByText("Self care day")).toBeInTheDocument();
     expect(screen.getByText("Not logged")).toBeInTheDocument();
     expect(screen.getByText("Has notes")).toBeInTheDocument();
   });
 
-  it("renders stats showing 0 good, 0 tough, 31 unlogged", () => {
+  it("renders stats showing 0 good, 0 tough, 0 self care, 31 unlogged", () => {
     render(<Calendar />);
     expect(screen.getByText(/0 good/)).toBeInTheDocument();
     expect(screen.getByText(/0 tough/)).toBeInTheDocument();
+    expect(screen.getByText(/0 self care/)).toBeInTheDocument();
     expect(screen.getByText(/31 unlogged/)).toBeInTheDocument();
   });
 
@@ -96,7 +101,9 @@ describe("Calendar", () => {
         isModalOpen: false,
         isLoading: true,
         celebratingDate: null,
+        celebrationType: "good",
         showLeafShower: false,
+        showPetalShower: false,
         goToPreviousMonth: jest.fn(),
         goToNextMonth: jest.fn(),
         goToToday: jest.fn(),
@@ -104,6 +111,7 @@ describe("Calendar", () => {
         closeModal: jest.fn(),
         saveEntry: jest.fn(),
         clearLeafShower: jest.fn(),
+        clearPetalShower: jest.fn(),
       }),
     }));
 

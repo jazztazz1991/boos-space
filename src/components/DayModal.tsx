@@ -1,29 +1,35 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import type { EntryDTO } from "@/domain/entry";
+import type { DayType, EntryDTO } from "@/domain/entry";
 import { SmallLeaf } from "./PlantIcon";
 
 interface DayModalProps {
   isOpen: boolean;
   dateKey: string | null;
   entry?: EntryDTO;
-  onSave: (dateKey: string, didBinge: boolean, notes: string) => void;
+  onSave: (dateKey: string, dayType: DayType, notes: string) => void;
   onClose: () => void;
 }
 
+const NOTES_PLACEHOLDERS: Record<DayType, string> = {
+  GOOD: "How are you feeling? What happened today...",
+  TOUGH: "How are you feeling? What happened today...",
+  SELF_CARE: "What are you doing to take care of yourself today?",
+};
+
 export function DayModal({ isOpen, dateKey, entry, onSave, onClose }: DayModalProps) {
-  const [didBinge, setDidBinge] = useState(false);
+  const [dayType, setDayType] = useState<DayType>("GOOD");
   const [notes, setNotes] = useState("");
   const modalRef = useRef<HTMLDivElement>(null);
   const firstFocusRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (entry) {
-      setDidBinge(entry.didBinge);
+      setDayType(entry.dayType);
       setNotes(entry.notes ?? "");
     } else {
-      setDidBinge(false);
+      setDayType("GOOD");
       setNotes("");
     }
   }, [entry, dateKey]);
@@ -58,7 +64,7 @@ export function DayModal({ isOpen, dateKey, entry, onSave, onClose }: DayModalPr
   });
 
   const handleSave = () => {
-    onSave(dateKey, didBinge, notes);
+    onSave(dateKey, dayType, notes);
   };
 
   const handleBackdropClick = (e: React.MouseEvent) => {
@@ -115,44 +121,75 @@ export function DayModal({ isOpen, dateKey, entry, onSave, onClose }: DayModalPr
         {/* Status toggle */}
         <div className="mb-6">
           <p className="text-sm font-medium text-sage-700 mb-3">How was today?</p>
-          <div className="grid grid-cols-2 gap-3">
+
+          {/* Top row: Good Day / Tough Day */}
+          <div className="grid grid-cols-2 gap-3 mb-3">
             <button
               ref={firstFocusRef}
               type="button"
-              onClick={() => setDidBinge(false)}
+              onClick={() => setDayType("GOOD")}
               className={`
                 flex flex-col items-center gap-2 p-4 rounded-xl
                 border-2 transition-all duration-200
-                ${!didBinge
+                ${dayType === "GOOD"
                   ? "border-moss-400 bg-moss-50 shadow-md"
                   : "border-sage-100 bg-cream-50 hover:border-sage-200"
                 }
               `}
-              aria-pressed={!didBinge}
+              aria-pressed={dayType === "GOOD"}
             >
               <span className="text-3xl">🌿</span>
-              <span className={`text-sm font-medium ${!didBinge ? "text-moss-700" : "text-sage-500"}`}>
+              <span className={`text-sm font-medium ${dayType === "GOOD" ? "text-moss-700" : "text-sage-500"}`}>
                 Good Day
               </span>
             </button>
 
             <button
               type="button"
-              onClick={() => setDidBinge(true)}
+              onClick={() => setDayType("TOUGH")}
               className={`
                 flex flex-col items-center gap-2 p-4 rounded-xl
                 border-2 transition-all duration-200
-                ${didBinge
+                ${dayType === "TOUGH"
                   ? "border-rose-300 bg-rose-50 shadow-md"
                   : "border-sage-100 bg-cream-50 hover:border-sage-200"
                 }
               `}
-              aria-pressed={didBinge}
+              aria-pressed={dayType === "TOUGH"}
             >
               <span className="text-3xl">🥀</span>
-              <span className={`text-sm font-medium ${didBinge ? "text-rose-600" : "text-sage-500"}`}>
+              <span className={`text-sm font-medium ${dayType === "TOUGH" ? "text-rose-600" : "text-sage-500"}`}>
                 Tough Day
               </span>
+            </button>
+          </div>
+
+          {/* Full-width: Extra Self Care */}
+          <div className={`rounded-xl p-[2px] transition-all duration-300 ${dayType === "SELF_CARE" ? "animate-shimmer" : ""}`}>
+            <button
+              type="button"
+              onClick={() => setDayType("SELF_CARE")}
+              className={`
+                w-full flex items-center justify-center gap-3 p-4 rounded-[10px]
+                border-2 transition-all duration-200
+                ${dayType === "SELF_CARE"
+                  ? "border-orchid-400 bg-orchid-50 shadow-lg"
+                  : "border-sage-100 bg-cream-50 hover:border-orchid-200 hover:bg-orchid-50/30"
+                }
+              `}
+              aria-pressed={dayType === "SELF_CARE"}
+            >
+              <span className="text-3xl">🌸</span>
+              <div className="flex flex-col items-start">
+                <span className={`text-sm font-semibold ${dayType === "SELF_CARE" ? "text-orchid-600" : "text-sage-500"}`}>
+                  Extra Self Care
+                </span>
+                {dayType === "SELF_CARE" && (
+                  <span className="text-xs text-orchid-400 animate-fade-in">
+                    You deserve this
+                  </span>
+                )}
+              </div>
             </button>
           </div>
         </div>
@@ -166,7 +203,7 @@ export function DayModal({ isOpen, dateKey, entry, onSave, onClose }: DayModalPr
             id="day-notes"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            placeholder="How are you feeling? What happened today..."
+            placeholder={NOTES_PLACEHOLDERS[dayType]}
             rows={4}
             maxLength={1000}
             className="

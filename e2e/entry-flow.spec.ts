@@ -20,6 +20,7 @@ test.describe("Entry Flow", () => {
     await expect(page.getByText("Garden Log")).toBeVisible();
     await expect(page.getByText("Good Day")).toBeVisible();
     await expect(page.getByText("Tough Day")).toBeVisible();
+    await expect(page.getByText("Extra Self Care")).toBeVisible();
   });
 
   test("can log a good day with notes", async ({ page }) => {
@@ -43,8 +44,25 @@ test.describe("Entry Flow", () => {
     await expect(page.getByRole("dialog")).not.toBeVisible();
   });
 
-  test("can close modal with Cancel", async ({ page }) => {
+  test("can log a self care day", async ({ page }) => {
     await page.getByRole("button", { name: /Not logged - 3$/ }).click();
+
+    await page.getByText("Extra Self Care").click();
+
+    // Should show encouragement text
+    await expect(page.getByText("You deserve this")).toBeVisible();
+
+    // Should show self care placeholder
+    await expect(page.getByPlaceholder(/take care of yourself/)).toBeVisible();
+
+    await page.getByPlaceholder(/take care of yourself/).fill("Bath and journaling");
+    await page.getByRole("button", { name: "Save Entry" }).click();
+
+    await expect(page.getByRole("dialog")).not.toBeVisible();
+  });
+
+  test("can close modal with Cancel", async ({ page }) => {
+    await page.getByRole("button", { name: /Not logged - 4$/ }).click();
     await expect(page.getByText("Garden Log")).toBeVisible();
 
     await page.getByRole("button", { name: "Cancel" }).click();
@@ -52,7 +70,7 @@ test.describe("Entry Flow", () => {
   });
 
   test("can close modal with X button", async ({ page }) => {
-    await page.getByRole("button", { name: /Not logged - 4$/ }).click();
+    await page.getByRole("button", { name: /Not logged - 5$/ }).click();
     await expect(page.getByText("Garden Log")).toBeVisible();
 
     await page.getByLabel("Close").click();
@@ -60,7 +78,7 @@ test.describe("Entry Flow", () => {
   });
 
   test("shows character count in notes", async ({ page }) => {
-    await page.getByRole("button", { name: /Not logged - 5$/ }).click();
+    await page.getByRole("button", { name: /Not logged - 6$/ }).click();
 
     await expect(page.getByText("0/1000")).toBeVisible();
     await page.getByPlaceholder(/How are you feeling/).fill("Hello");

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { getDaysInMonth, getFirstDayOfMonth, formatDateKey } from "@/lib/utils";
-import type { EntryDTO } from "@/domain/entry";
+import type { DayType, EntryDTO } from "@/domain/entry";
 
 export interface CalendarState {
   year: number;
@@ -22,7 +22,9 @@ export function useCalendar() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [celebratingDate, setCelebratingDate] = useState<string | null>(null);
+  const [celebrationType, setCelebrationType] = useState<"good" | "selfCare">("good");
   const [showLeafShower, setShowLeafShower] = useState(false);
+  const [showPetalShower, setShowPetalShower] = useState(false);
   const celebrationTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const fetchEntries = useCallback(async () => {
@@ -84,7 +86,7 @@ export function useCalendar() {
 
   const saveEntry = async (
     dateKey: string,
-    didBinge: boolean,
+    dayType: DayType,
     notes: string
   ) => {
     const res = await fetch("/api/entries", {
@@ -92,7 +94,7 @@ export function useCalendar() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         date: dateKey,
-        didBinge,
+        dayType,
         notes: notes || undefined,
       }),
     });
@@ -105,12 +107,21 @@ export function useCalendar() {
         return next;
       });
 
-      // Trigger celebration for good days
-      if (!didBinge) {
+      // Trigger celebration for good days and self care days
+      if (dayType === "GOOD") {
         setCelebratingDate(dateKey);
+        setCelebrationType("good");
         setShowLeafShower(true);
 
-        // Clear bloom after animation completes
+        if (celebrationTimer.current) clearTimeout(celebrationTimer.current);
+        celebrationTimer.current = setTimeout(() => {
+          setCelebratingDate(null);
+        }, 1000);
+      } else if (dayType === "SELF_CARE") {
+        setCelebratingDate(dateKey);
+        setCelebrationType("selfCare");
+        setShowPetalShower(true);
+
         if (celebrationTimer.current) clearTimeout(celebrationTimer.current);
         celebrationTimer.current = setTimeout(() => {
           setCelebratingDate(null);
@@ -125,6 +136,10 @@ export function useCalendar() {
     setShowLeafShower(false);
   }, []);
 
+  const clearPetalShower = useCallback(() => {
+    setShowPetalShower(false);
+  }, []);
+
   return {
     year,
     month,
@@ -135,7 +150,9 @@ export function useCalendar() {
     isModalOpen,
     isLoading,
     celebratingDate,
+    celebrationType,
     showLeafShower,
+    showPetalShower,
     goToPreviousMonth,
     goToNextMonth,
     goToToday,
@@ -143,5 +160,6 @@ export function useCalendar() {
     closeModal,
     saveEntry,
     clearLeafShower,
+    clearPetalShower,
   };
 }

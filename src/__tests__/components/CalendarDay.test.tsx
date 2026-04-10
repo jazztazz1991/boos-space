@@ -28,7 +28,7 @@ describe("CalendarDay", () => {
     render(
       <CalendarDay
         {...defaultProps}
-        entry={{ id: "1", date: "2026-03-15", didBinge: false, notes: null }}
+        entry={{ id: "1", date: "2026-03-15", dayType: "GOOD", notes: null }}
       />
     );
     expect(screen.getByRole("img", { name: "Good day" })).toBeInTheDocument();
@@ -38,17 +38,27 @@ describe("CalendarDay", () => {
     render(
       <CalendarDay
         {...defaultProps}
-        entry={{ id: "1", date: "2026-03-15", didBinge: true, notes: null }}
+        entry={{ id: "1", date: "2026-03-15", dayType: "TOUGH", notes: null }}
       />
     );
     expect(screen.getByRole("img", { name: "Tough day" })).toBeInTheDocument();
+  });
+
+  it("shows cherry blossom icon for a self care day", () => {
+    render(
+      <CalendarDay
+        {...defaultProps}
+        entry={{ id: "1", date: "2026-03-15", dayType: "SELF_CARE", notes: null }}
+      />
+    );
+    expect(screen.getByRole("img", { name: "Self care day" })).toBeInTheDocument();
   });
 
   it("shows notes indicator when entry has notes", () => {
     render(
       <CalendarDay
         {...defaultProps}
-        entry={{ id: "1", date: "2026-03-15", didBinge: false, notes: "Felt great" }}
+        entry={{ id: "1", date: "2026-03-15", dayType: "GOOD", notes: "Felt great" }}
       />
     );
     expect(screen.getByLabelText("Has notes")).toBeInTheDocument();
@@ -58,7 +68,7 @@ describe("CalendarDay", () => {
     render(
       <CalendarDay
         {...defaultProps}
-        entry={{ id: "1", date: "2026-03-15", didBinge: false, notes: null }}
+        entry={{ id: "1", date: "2026-03-15", dayType: "GOOD", notes: null }}
       />
     );
     expect(screen.queryByLabelText("Has notes")).not.toBeInTheDocument();
@@ -75,5 +85,45 @@ describe("CalendarDay", () => {
   it("has accessible label including status and day", () => {
     render(<CalendarDay {...defaultProps} />);
     expect(screen.getByRole("button")).toHaveAccessibleName("Not logged - 15");
+  });
+
+  it("has accessible label for self care day", () => {
+    render(
+      <CalendarDay
+        {...defaultProps}
+        entry={{ id: "1", date: "2026-03-15", dayType: "SELF_CARE", notes: null }}
+      />
+    );
+    expect(screen.getByRole("button")).toHaveAccessibleName("Self care day - 15");
+  });
+
+  it("applies persistent animations to self care day cells", () => {
+    render(
+      <CalendarDay
+        {...defaultProps}
+        entry={{ id: "1", date: "2026-03-15", dayType: "SELF_CARE", notes: null }}
+      />
+    );
+    const button = screen.getByRole("button");
+    expect(button).toHaveClass("self-care-cell");
+    expect(button).toHaveClass("animate-self-care-breath");
+
+    const emoji = screen.getByRole("img", { name: "Self care day" });
+    expect(emoji).toHaveClass("animate-gentle-float");
+  });
+
+  it("does not apply persistent animations to non-self-care days", () => {
+    render(
+      <CalendarDay
+        {...defaultProps}
+        entry={{ id: "1", date: "2026-03-15", dayType: "GOOD", notes: null }}
+      />
+    );
+    const button = screen.getByRole("button");
+    expect(button).not.toHaveClass("self-care-cell");
+    expect(button).not.toHaveClass("animate-self-care-breath");
+
+    const emoji = screen.getByRole("img", { name: "Good day" });
+    expect(emoji).not.toHaveClass("animate-gentle-float");
   });
 });

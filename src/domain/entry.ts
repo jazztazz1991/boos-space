@@ -1,8 +1,11 @@
 import { z } from "zod/v4";
 
+export const DAY_TYPES = ["GOOD", "TOUGH", "SELF_CARE"] as const;
+export type DayType = (typeof DAY_TYPES)[number];
+
 export const CreateEntrySchema = z.object({
   date: z.iso.date(),
-  didBinge: z.boolean(),
+  dayType: z.enum(DAY_TYPES),
   notes: z.string().max(1000).optional(),
 });
 
@@ -16,6 +19,6 @@ export type GetEntriesQuery = z.infer<typeof GetEntriesSchema>;
 export interface EntryDTO {
   id: string;
   date: string;
-  didBinge: boolean;
+  dayType: DayType;
   notes: string | null;
 }

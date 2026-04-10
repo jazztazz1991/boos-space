@@ -6,6 +6,7 @@ import { DayModal } from "./DayModal";
 import { LeafBorder, HangingPlant, CornerVine } from "./PlantIcon";
 import { GrowingVine } from "./GrowingVine";
 import { LeafShower } from "./LeafShower";
+import { PetalShower } from "./PetalShower";
 import { getMonthName, formatDateKey } from "@/lib/utils";
 
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -21,7 +22,9 @@ export function Calendar() {
     isModalOpen,
     isLoading,
     celebratingDate,
+    celebrationType,
     showLeafShower,
+    showPetalShower,
     goToPreviousMonth,
     goToNextMonth,
     goToToday,
@@ -29,14 +32,19 @@ export function Calendar() {
     closeModal,
     saveEntry,
     clearLeafShower,
+    clearPetalShower,
   } = useCalendar();
 
   const selectedEntry = selectedDate ? entries.get(selectedDate) : undefined;
 
   // Calculate stats for the month
   const totalEntries = entries.size;
-  const goodDays = Array.from(entries.values()).filter((e) => !e.didBinge).length;
-  const toughDays = totalEntries - goodDays;
+  const goodDays = Array.from(entries.values()).filter((e) => e.dayType === "GOOD").length;
+  const toughDays = Array.from(entries.values()).filter((e) => e.dayType === "TOUGH").length;
+  const selfCareDays = Array.from(entries.values()).filter((e) => e.dayType === "SELF_CARE").length;
+
+  // Self care days also count as positive for vine growth
+  const positiveDays = goodDays + selfCareDays;
 
   const days = [];
   // Empty cells for days before the 1st
@@ -54,6 +62,7 @@ export function Calendar() {
         month={month}
         entry={entries.get(dateKey)}
         isCelebrating={celebratingDate === dateKey}
+        celebrationType={celebrationType}
         onClick={openDay}
       />
     );
@@ -84,8 +93,8 @@ export function Calendar() {
         {/* Calendar card with growing vines */}
         <div className="relative">
           {/* Growing vines on each side */}
-          <GrowingVine goodDays={goodDays} totalDays={daysInMonth} side="left" />
-          <GrowingVine goodDays={goodDays} totalDays={daysInMonth} side="right" />
+          <GrowingVine goodDays={positiveDays} totalDays={daysInMonth} side="left" />
+          <GrowingVine goodDays={positiveDays} totalDays={daysInMonth} side="right" />
 
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-sage-100 overflow-hidden">
           {/* Month navigation */}
@@ -144,6 +153,9 @@ export function Calendar() {
                 <span>🥀</span> {toughDays} tough
               </span>
               <span className="flex items-center gap-1">
+                <span>🌸</span> {selfCareDays} self care
+              </span>
+              <span className="flex items-center gap-1">
                 <span>🌱</span> {daysInMonth - totalEntries} unlogged
               </span>
             </div>
@@ -193,6 +205,10 @@ export function Calendar() {
                 Tough day
               </span>
               <span className="flex items-center gap-1.5">
+                <span className="w-3 h-3 rounded-full bg-orchid-100 border border-orchid-200" />
+                Self care day
+              </span>
+              <span className="flex items-center gap-1.5">
                 <span className="w-3 h-3 rounded-full bg-cream-100 border border-cream-200" />
                 Not logged
               </span>
@@ -214,6 +230,9 @@ export function Calendar() {
 
       {/* Celebration leaf shower */}
       <LeafShower isActive={showLeafShower} onComplete={clearLeafShower} />
+
+      {/* Celebration petal shower */}
+      <PetalShower isActive={showPetalShower} onComplete={clearPetalShower} />
 
       {/* Day Modal */}
       <DayModal

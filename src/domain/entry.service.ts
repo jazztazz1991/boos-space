@@ -1,16 +1,16 @@
 import { prisma } from "@/lib/prisma";
-import type { CreateEntryInput, EntryDTO } from "./entry";
+import type { CreateEntryInput, DayType, EntryDTO } from "./entry";
 
 function toDTO(entry: {
   id: string;
   date: Date;
-  didBinge: boolean;
+  dayType: string;
   notes: string | null;
 }): EntryDTO {
   return {
     id: entry.id,
     date: entry.date.toISOString().split("T")[0],
-    didBinge: entry.didBinge,
+    dayType: entry.dayType as DayType,
     notes: entry.notes,
   };
 }
@@ -34,7 +34,7 @@ export async function getEntriesForMonth(
     select: {
       id: true,
       date: true,
-      didBinge: true,
+      dayType: true,
       notes: true,
     },
     orderBy: { date: "asc" },
@@ -57,19 +57,19 @@ export async function upsertEntry(
       },
     },
     update: {
-      didBinge: input.didBinge,
+      dayType: input.dayType,
       notes: input.notes ?? null,
     },
     create: {
       date,
-      didBinge: input.didBinge,
+      dayType: input.dayType,
       notes: input.notes ?? null,
       userId,
     },
     select: {
       id: true,
       date: true,
-      didBinge: true,
+      dayType: true,
       notes: true,
     },
   });

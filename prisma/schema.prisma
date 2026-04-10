@@ -18,10 +18,18 @@ model User {
   @@schema("boos_garden")
 }
 
+enum DayType {
+  GOOD
+  TOUGH
+  SELF_CARE
+
+  @@schema("boos_garden")
+}
+
 model Entry {
   id        String   @id @default(cuid())
   date      DateTime
-  didBinge  Boolean
+  dayType   DayType
   notes     String?
   userId    String
   user      User     @relation(fields: [userId], references: [id])

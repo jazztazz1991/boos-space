@@ -38,10 +38,11 @@ describe("DayModal", () => {
     expect(screen.getByText("Garden Log")).toBeInTheDocument();
   });
 
-  it("has Good Day and Tough Day buttons", () => {
+  it("has Good Day, Tough Day, and Extra Self Care buttons", () => {
     render(<DayModal {...defaultProps} />);
     expect(screen.getByText("Good Day")).toBeInTheDocument();
     expect(screen.getByText("Tough Day")).toBeInTheDocument();
+    expect(screen.getByText("Extra Self Care")).toBeInTheDocument();
   });
 
   it("defaults to Good Day selected", () => {
@@ -50,14 +51,14 @@ describe("DayModal", () => {
     expect(goodDayButton).toHaveAttribute("aria-pressed", "true");
   });
 
-  it("pre-fills with existing entry data", () => {
+  it("pre-fills with existing entry data for TOUGH day", () => {
     render(
       <DayModal
         {...defaultProps}
         entry={{
           id: "1",
           date: "2026-03-15",
-          didBinge: true,
+          dayType: "TOUGH",
           notes: "Stressful day",
         }}
       />
@@ -68,7 +69,25 @@ describe("DayModal", () => {
     expect(screen.getByDisplayValue("Stressful day")).toBeInTheDocument();
   });
 
-  it("allows toggling between Good Day and Tough Day", async () => {
+  it("pre-fills with existing entry data for SELF_CARE day", () => {
+    render(
+      <DayModal
+        {...defaultProps}
+        entry={{
+          id: "1",
+          date: "2026-03-15",
+          dayType: "SELF_CARE",
+          notes: "Bath and journaling",
+        }}
+      />
+    );
+
+    const selfCareButton = screen.getByText("Extra Self Care").closest("button");
+    expect(selfCareButton).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByDisplayValue("Bath and journaling")).toBeInTheDocument();
+  });
+
+  it("allows toggling between all three day types", async () => {
     const user = userEvent.setup();
     render(<DayModal {...defaultProps} />);
 
@@ -76,9 +95,33 @@ describe("DayModal", () => {
     await user.click(toughDayButton);
     expect(toughDayButton).toHaveAttribute("aria-pressed", "true");
 
+    const selfCareButton = screen.getByText("Extra Self Care").closest("button")!;
+    await user.click(selfCareButton);
+    expect(selfCareButton).toHaveAttribute("aria-pressed", "true");
+
     const goodDayButton = screen.getByText("Good Day").closest("button")!;
     await user.click(goodDayButton);
     expect(goodDayButton).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("shows encouragement text when Self Care is selected", async () => {
+    const user = userEvent.setup();
+    render(<DayModal {...defaultProps} />);
+
+    expect(screen.queryByText("You deserve this")).not.toBeInTheDocument();
+
+    const selfCareButton = screen.getByText("Extra Self Care").closest("button")!;
+    await user.click(selfCareButton);
+    expect(screen.getByText("You deserve this")).toBeInTheDocument();
+  });
+
+  it("shows self care placeholder when Self Care is selected", async () => {
+    const user = userEvent.setup();
+    render(<DayModal {...defaultProps} />);
+
+    const selfCareButton = screen.getByText("Extra Self Care").closest("button")!;
+    await user.click(selfCareButton);
+    expect(screen.getByPlaceholderText(/take care of yourself/)).toBeInTheDocument();
   });
 
   it("allows typing notes", async () => {
@@ -95,7 +138,7 @@ describe("DayModal", () => {
     expect(screen.getByText("0/1000")).toBeInTheDocument();
   });
 
-  it("calls onSave with correct data when Save is clicked", async () => {
+  it("calls onSave with GOOD day type when Save is clicked", async () => {
     const user = userEvent.setup();
     render(<DayModal {...defaultProps} />);
 
@@ -105,8 +148,34 @@ describe("DayModal", () => {
     await user.click(screen.getByText("Save Entry"));
     expect(defaultProps.onSave).toHaveBeenCalledWith(
       "2026-03-15",
-      false,
+      "GOOD",
       "Good vibes"
+    );
+  });
+
+  it("calls onSave with TOUGH day type", async () => {
+    const user = userEvent.setup();
+    render(<DayModal {...defaultProps} />);
+
+    await user.click(screen.getByText("Tough Day").closest("button")!);
+    await user.click(screen.getByText("Save Entry"));
+    expect(defaultProps.onSave).toHaveBeenCalledWith(
+      "2026-03-15",
+      "TOUGH",
+      ""
+    );
+  });
+
+  it("calls onSave with SELF_CARE day type", async () => {
+    const user = userEvent.setup();
+    render(<DayModal {...defaultProps} />);
+
+    await user.click(screen.getByText("Extra Self Care").closest("button")!);
+    await user.click(screen.getByText("Save Entry"));
+    expect(defaultProps.onSave).toHaveBeenCalledWith(
+      "2026-03-15",
+      "SELF_CARE",
+      ""
     );
   });
 
